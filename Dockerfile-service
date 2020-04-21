@@ -1,0 +1,2 @@
+FROM envoyproxy/envoy-alpine-dev:latest
+RUN apk update && apk add python3 bash curl

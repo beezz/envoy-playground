@@ -1,0 +1,79 @@
+version: "3.7"
+services:
+
+  front-envoy:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontenvoy
+    volumes:
+      - ./front-envoy.yaml:/etc/front-envoy.yaml
+    networks:
+      - envoymesh
+    expose:
+      - "80"
+      - "8001"
+    ports:
+      - "8000:80"
+      - "8001:8001"
+
+  service-envoy:
+    build:
+      context: .
+      dockerfile: Dockerfile-service
+    command: ["envoy", "-c", "/etc/service-envoy.yaml", "--service-cluster", "service"]
+    volumes:
+      - ./service-envoy.yaml:/etc/service-envoy.yaml
+    networks:
+      envoymesh:
+        aliases:
+          - service-envoy
+    expose:
+      - "80"
+    ports:
+      - "9000:80"
+      - "9001:8001"
+
+  service-1:
+    build:
+      context: .
+      dockerfile: Dockerfile-service
+    command: ["python3", "/code/server.py"]
+    volumes:
+      - ./server.py:/code/server.py
+    networks:
+      envoymesh:
+        aliases:
+          - service1
+    expose:
+      - "8080"
+
+  service-2:
+    build:
+      context: .
+      dockerfile: Dockerfile-service
+    command: ["python3", "/code/server.py"]
+    volumes:
+      - ./server.py:/code/server.py
+    networks:
+      envoymesh:
+        aliases:
+          - service2
+    expose:
+      - "8080"
+
+  service-3:
+    build:
+      context: .
+      dockerfile: Dockerfile-service
+    command: ["python3", "/code/server.py"]
+    volumes:
+      - ./server.py:/code/server.py
+    networks:
+      envoymesh:
+        aliases:
+          - service2
+    expose:
+      - "8080"
+
+networks:
+  envoymesh: {}
